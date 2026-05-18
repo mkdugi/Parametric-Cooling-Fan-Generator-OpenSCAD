@@ -4,18 +4,15 @@ Parametric Brushless RC Fan Generator
 Introduction
 ------------
 
-This is a fork of hyperair's parametric fan blade generator. This program generates
-cooling fans appropriate for mounting onto the back of a brushless rc motors.
-A high hub to diameter ratio is neccesary in order to generate enough
-pressure to draw air through the motor windings. Additionally, a course pitch is
-recommended to generate airflow at low rpms. Fan's have been tested at 15k rpm.
+This is a fork of Spoons Parametric-Cooling-Fan-Generator-OpenSCAD,
+which is a fork of hyperair's parametric fan blade generator.
+This program generates cooling fans appropriate for mounting onto the back
+of a brushless rc motors and others.
+I used it to change AC 230V duct air vent.
 
-Set propeller\_d to the diameter of the motor (eg 63mm). Set hub\_recess to the
-diameter of the extruded part of the motor, which contains the scew holes.
-Finally, set screwhole\_r to the distance between the screw hole and the center
-of the stator shaft.
+Thank's to Spoons's/hyperair's oryginal, there are many configurations options.
 
-Attach cooling fan with M3 machine screws.
+Thank You Spoons!
 
 
 Required libraries
