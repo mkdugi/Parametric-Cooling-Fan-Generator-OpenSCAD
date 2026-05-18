@@ -9,25 +9,26 @@ use <MCAD/shapes/2Dshapes.scad>
 echo ("hub to tip ratio: ", hub_d/propeller_d*100);
 
 
-number_of_blades = 10;
+number_of_blades = 3;
 wall_thickness = .8;
-hub_d = 47;
+hub_d = 63;
 hub_od = hub_d + wall_thickness * 2;
-hub_recess = 15.7;
-propeller_d = 63;
+hub_recess = 60.0;
+hub_motor = 18.0;
+propeller_d = 93.5;
 
-blade_height = 8;
+blade_height = 33;
 blade_thickness = 0.3;
-blade_pitch = 76;               // average, because it's parabolic
-blade_direction = 1;           // -1 for counter-clockwise, 1 for clockwise
+blade_pitch = 60;               // average, because it's parabolic
+blade_direction = -1;           // -1 for counter-clockwise, 1 for clockwise
 blade_shape = "parabolic";      // "parabolic" or "linear"
 
 winglets = false;
-winglet_thickness = 1;
-winglet_length = 2;
+winglet_thickness = 0.5;
+winglet_length = 5;
 winglet_direction = 1;          // 1 for underside of blade, -1 for upper
 
-shroud = true;
+shroud = false;
 shroud_thickness = 2;
 cowl_height=30;
 cowl_offset=20;
@@ -36,34 +37,42 @@ tab_internal_angle = 10;
 tab_thickness = 0.2;
 number_of_tabs = 5;
 tab_width = 0.2;
-
-screwhole_r = 11;
+hub_hole = 4.0;
+screwhole_r = 0;
 
 $fs = 0.4;
 $fa = 1;
-
-union() {
-threaded_bolt_hub();
-
-mcad_rotate_multiply (number_of_blades, axis = Z)
-translate ([0- epsilon, 0, 0])
-blade ();
-
-if (shroud)
-shroud ();
+difference() {
+    union() {
+        threaded_bolt_hub();
+        difference() {
+            mcad_rotate_multiply (number_of_blades, axis = Z)
+            translate ([0- epsilon, 0, 0])
+            blade ();
+            threaded_bolt_hub_no_central();
+        }
+        if (shroud)
+        shroud ();
+    }
+    translate([0,0,-0.1]) cylinder(d=hub_recess, h=hub_motor+0.1);
 }
+
 module threaded_bolt_hub() {
     difference () {
-        cylinder(d=hub_od, h=blade_height);
-        for (i=[0:90:360]) {
-            //screw holes
-            rotate([0,0,i]) translate([screwhole_r,0,-1]) cylinder(d=3, h=50);
+      threaded_bolt_hub_no_central();
+        for (i=[0:90:360]) {    //screw holes
+            rotate([0,0,i]) translate([screwhole_r,0,-1]) cylinder(d=hub_hole, h=70);
         }
-        //center hole
-        translate([0,0,-1]) cylinder(d=hub_recess, h=5.);
     }
 }
 
+module threaded_bolt_hub_no_central() {
+    union() {
+        cylinder(d=hub_od, h=hub_motor);
+        translate([0,0,hub_motor]) cylinder(d1=hub_od, d2=hub_od/2, h=blade_height-hub_motor);
+        translate([0,0,blade_height]) cylinder(d1=hub_od/2, h=10);
+    }
+}
 
 module tab ()
 {
@@ -124,24 +133,17 @@ module blade ()
             ]) *
         scaling ([1, scale_, 1])
     ];
-
-    render ()
-    difference () {
+  //  render ()
         union () {
             sweep (base_shape, blade_transforms);
-
             if (winglets)
             sweep (winglet_shape, winglet_transforms);
         }
-
-        translate ([0, 0, -epsilon])
-        cylinder (d = hub_od - epsilon * 2, h = blade_height + epsilon * 2);
-    }
 }
 
 module shroud ()
 {
     rotate_extrude ()
-    translate ([-shroud_thickness / 2 + propeller_d / 2, -cowl_offset])
+    translate ([shroud_thickness / 2 + (propeller_d / 2 + 1), -cowl_offset])
     square ([shroud_thickness, blade_height+cowl_height]);
 }
